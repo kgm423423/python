@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML From</title>
+</head>
+<body>
+    <br><br><br>
+    <form method="post">
+        <table width="600" border="1" align="center">
+            <tr>
+                <th>아이디</th>
+                <td>
+                    <input type="text" name="id">
+                </td>
+            </tr>
+            <tr>
+                <th>패스워드</th>
+                <td>
+                    <input type="password" name="passwd">
+                </td>
+            </tr>
+            <tr>
+                <th>이메일1</th>
+                <td>
+                    <input type="email" name="email">
+                </td>
+            </tr>
+            <tr>
+                <th>이메일2</th>
+                <td>
+                    <input type="text" name="email_id">@
+                    <select>
+                        <option value="naver.com">naver.com</option>
+                        <option value="kakao.com">kakao.com</option>
+                        <option value="gogle.com">gogle.com</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>성별</th>
+                <td>
+                    <input type="radio" name="gender" value="male"> 남
+                    <input type="radio" name="gender" value="female"> 여
+                </td>
+            </tr>
+            <tr>
+                <th>관심주제</th>
+                <td>
+                    <input type="radio" name="interest" value="it"> IT
+                    <input type="radio" name="interest" value="economy"> 경제
+                    <input type="radio" name="interest" value="game"> 게임
+                </td>
+            </tr>
+            <tr>
+                <th>프로필</th>
+                <td>
+                    <input type="file" name="picture" id="picture">
+                </td>
+            </tr>
+            <tr>
+                <th>가입인사</th>
+                <td>
+                    <textarea name="greetings" rows="5" cols="50" style="resize: none;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="submit" value="회원가입">
+                    <input type="reset" value="다시입력">
+                </td>
+            </tr>
+        </table>
+    </form>
+
+</body>
+</html>

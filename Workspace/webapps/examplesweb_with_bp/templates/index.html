@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    <h1 style='color:blue;'>플라스크 기반 웹 프로그램입니다.(템플릿 사용)</h1>
+    <hr>
+
+    <h3>1.<a href='/example/process-data?data1=홍길동&data2=John%20Doe'>페이지 요청 ( GET 방식 요청 )</a></h3>
+    <h3>2. POST 방식 데이터 요청</h3>
+    <form action="/example/process-data" method="post">
+        <input type="text" name="data1"><br>
+        <input type="text" name="data2"><br>
+        <input type="submit" value="전송">
+    </form>
+    <h3><a href="/example/path-variable/John_Doe">데이터를 요청 경로의 일부로 포함</a></h3>
+    <h3><a href="{{ url_for('example.process_redirect') }}">리다이렉트로 이동하기</a></h3>
+</body>
+</html>
