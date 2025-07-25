@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>손글씨 숫자 인식</title>
+    <style>
+        canvas {
+            border: 2px solid black;
+            background: white;
+            cursor: crosshair;
+        }
+        #result {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('main.index') }}"> main page </a>
+    <h1>손글씨 숫자 인식 (0~9)</h1>
+    <canvas id="canvas" width="200" height="200"></canvas><br>
+    <button id="clearBtn">지우기</button>
+    <button id="predictBtn">예측</button>
+    <div id="result">결과: -</div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let drawing = false;
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(e) {
+            if (!drawing) return;
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.arc(e.offsetX, e.offsetY, 8, 0, Math.PI * 2); // 두꺼운 선
+            ctx.fill();
+        }
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('result').innerText = "결과: -";
+        });
+
+        document.getElementById('predictBtn').addEventListener('click', () => {
+            const image = canvas.toDataURL('image/png');
+            fetch('/models/number', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('result').innerText = `예측: ${data.prediction}`;
+            });
+        });
+    </script>
+</body>
+</html>

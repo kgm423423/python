@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iris</title>
+</head>
+<body>
+    <a href="{{ url_for('main.index') }}"> main page </a>
+    <section class="p-t-20">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card ">
+                    <div class="card-header">붓꽃 품종 예측</div>
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3 class="text-center title-2">붓꽃 정보</h3>
+                        </div>
+                        <hr>
+                        <form action="{{ url_for('models.iris') }}" method="post" novalidate="novalidate">
+                            <div class="form-group">
+                                <label for="petal_width" class="control-label mb-1">꽃잎 너비</label>
+                                <input id="petal_width" name="petal_width" type="text" class="form-control" aria-required="true" aria-invalid="false">
+                            </div>
+                            <div class="form-group has-success">
+                                <label for="petal_length" class="control-label mb-1">꽃잎 길이</label>
+                                <input id="petal_length" name="petal_length" type="text" class="form-control cc-name valid" data-val="true" data-val-required="Please enter the name on card" autocomplete="cc-name" aria-required="true" aria-invalid="false" aria-describedby="cc-name-error">                            
+                            
+                            </div>
+                            <div class="form-group">
+                                <label for="sepal_width" class="control-label mb-1">꽃받침 너비</label>
+                                <input id="sepal_width" name="sepal_width" type="text" class="form-control cc-number identified visa" value="" data-val="true" data-val-required="Please enter the card number" data-val-cc-number="Please enter a valid card number" autocomplete="cc-number">                                
+                            </div>
+                            <div class="form-group">
+                                <label for="sepal_length" class="control-label mb-1">꽃받침 길이</label>
+                                <input id="sepal_length" name="sepal_length" type="text" class="form-control cc-number identified visa" value="" data-val="true" data-val-required="Please enter the card number" data-val-cc-number="Please enter a valid card number" autocomplete="cc-number">                                
+                            </div>                            
+                            <div>
+                                <button type="submit" class="btn btn-lg btn-info btn-block">
+                                    <span>품종 예측</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            {% if result %}
+            <h2>결과: {{ result }}</h2>
+            {% endif %}
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %} 
+
+<!-- DATA TABLE -->
+<section class="p-t-20">
+    <div class="container">
+        <div class="row m-t-30">
+            <div class="col-md-12">
+                <!-- DATA TABLE -->
+                 <div class="table-responsive m-b-40">
+                    <table class="table table-borderless table-data3">
+                        <thead>
+                            <tr>
+                                {% for column in df.columns %}
+                                <th>{{ column }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in df.values %}
+                            <tr>
+                                {% for col in row %}
+                                <td> {{ col }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- END DATA TABLE -->
+            </div>
+        </div>
+    </div> 
+                        
+</section> 
+<!-- END DATA TABLE -->
+
+{% endblock %}
+

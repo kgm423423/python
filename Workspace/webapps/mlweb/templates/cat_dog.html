@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cat and dog</title>
+</head>
+<body>
+    <a href="{{ url_for('main.index') }}"> main page </a>
+
+    <h1>강아지 고양이 예측</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">예측하기</button>
+    </form>
+
+    {% if image_data  %}
+    <h2>업로드된 이미지</h2>
+    <img src="data:image/jpeg;base64,{{ image_data }}" width="200">
+    {% endif %}
+
+    {% if result %}
+    <h2>결과: {{ result }}</h2>
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+[ Blueprint 적용 ]
+
+1. views 폴더 만들기
+
+2. views 폴더에 main_view.py 만들기
+
+3. main_view.py에 BluePrint 구현
+
+from flask import Blueprint
+from flask import render_template
+
+main_bp = Blueprint('main', __name__, url_prefix="/")
+
+@main_bp.route("/", methods=['GET'])
+def index():
+    # 요청 데이터 읽기
+    # 요청 처리
+    # 응답 컨텐츠 생산
+    return render_template('index.html')
+
+4. app.py 수정
+
+   @...route() 제거
+
+    blueprint 등록 : app.register_blueprint(main_view.main.bp)
+
+    
+
+
+--------------------------------
+
+[ 템플릿 상속 적용 ]
+
+1. 변경되는 영역과 변경되지 않는 영역 확인
+
+   원본 템플릿을 실행 --> 몇 개의 페이지 이동 --> 각 페이지에서 F12로 인스펙트 실행 후 구조 확인
+
+
+2. 부모 템플릿 html 만들기
+
+   index.html 복사 --> base.html 생성
+
+   base.html에서 페이지마다 변경되는 영역의 내용 제거
+
+   제거된 부분에 아래 코드 작성
+
+            {% block content %}
+            {% endblock %} 
+
+   <title></title> 영역을 아래와 같이 재정의 block으로 변경
+
+    <!-- Title Page-->
+    {% block title_block %}
+    <title>Base Title</title>
+    {% endblock %}
+
+    css block 아래와 같이 작성
+
+    {% block css_block %}
+    {% endblock %}
+
+
+    js block 아래와 같이 작성
+
+    {% block js_block %}
+    {% endblock %}
+
+
+3. 자식 템플릿 html 만들기
+
+   index.html에서 base.html에 남겨둔 공통 영역 제거
+
+   남아 있는 영역을 아래 코드로 감싸기
+
+            {% block content %}
+	"여기에 개별 페이지 내용"
+            {% endblock %} 
+
+   title block 아래와 같이 재정의
+{% block title_block %}
+<title>Demoweb Home</title>
+{% endblock %}
+
+   상속 표시를 위해 템플릿 페이지(index.html) 앞 부분에 아래 코드 작성
+
+   {% extends "base.html" %}
+
+
+--------------------------------------------------------
+
+[ 템플릿 재사용 적용 ]
+
+1. 재사용 영역 분리 1
+
+    templates 폴더에 page_modules 폴더 만들기
+
+    page_modules 폴더에 common_css.html 파일 만들기
+
+    base.html에서 css 영역 잘라내기 --> common_css.html 에 붙여넣기
+
+    base.html에서 css 영역 잘라내기 한 부분에 아래 코드 추가
+
+    {% include "page_modules/common_css.html" %}
+
+
+2. 재사용 영역 분리 2
+
+    page_modules 폴더에 common_js.html 파일 만들기
+
+    base.html에서 js 영역 잘라내기 --> common_js.html 에 붙여넣기
+
+    base.html에서 js 영역 잘라내기 한 부분에 아래 코드 추가
+
+    {% include "page_modules/common_js.html" %}
+   

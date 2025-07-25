@@ -1,0 +1,258 @@
+1.  링크 만들기
+
+    base.html 83 line 부근 수정
+
+<li class="has-sub">
+                                <a href="#">
+                                    <i class="fas fa-desktop"></i>
+                                    <span class="bot-line"></span>Data</a>
+                                <ul class="header3-sub-list list-unstyled">
+                                    <li>
+                                        <a href="{{ url_for('data.titanic') }}">Titanic</a>
+                                    </li>                                    
+                                </ul>
+                            </li>
+
+2.  Blueprint 만들기
+
+    views 폴더 하위에 data_view.py 파일 생성 후 아래 코드 작성
+
+from flask import Blueprint
+from flask import render_template, redirect
+from flask import request
+
+import os
+from pathlib import Path
+
+data_bp = Blueprint('data', __name__, url_prefix="/data")
+
+@data_bp.route('/titanic', methods=['GET'])
+def titanic():
+    # 파일에서 데이터 읽기
+    bp_path = data_bp.root_path # 현재 blueprint의 경로
+    root_path = Path(bp_path).parent #  부모 경로 
+    file_path = os.path.join(root_path, 'data_files', 'titanic_train.csv')
+    return file_path
+    # 템플릿으로 이동 ( 위에서 읽은 데이터 전달 )
+    pass
+
+   
+
+3. Blueprint 등록
+
+   __init__.py 파일에 아래 코드 추가
+
+    app.register_blueprint(data_view.data_bp)
+
+4. 실행 후 확인
+
+
+5. 템플릿으로 이동
+
+   data_view.py  파일 수정
+
+    file_path = os.path.join(root_path, 'data_files', 'titanic_train.csv')
+    df_titanic = pd.read_csv(file_path)
+
+    # 템플릿으로 이동 ( 위에서 읽은 데이터 전달 )
+    return render_template('data/titanic.html', df=df_titanic)
+
+   -----------
+
+    templates 폴더 하위에 data  폴더 만들기
+
+    data 폴더 하위에 titanic.html 파일 만들고 아래 코드 추가
+
+{% extends 'base.html' %}
+
+{% block content_block %}
+
+<h2>여기에 표가 표시됩니다</h2>
+
+{% endblock %}
+
+6. 실행 및 확인
+
+7. 템플릿에서 전달된 데이터 표시
+
+   titanic.html 파일 수정
+
+{% block content_block %}
+
+<!-- DATA TABLE-->
+<section class="p-t-20">
+... (내용 생략
+</section>
+<!-- END DATA TABLE-->
+
+{% endblock %}
+
+
+8. 실행 및 확인
+
+9. 데이터베이스 테이블 생성
+
+   data_util.py에 다음 함수 추가
+
+def create_titanic_table():
+    try:
+        conn = pymysql.connect(host="localhost", 
+                               database='demoweb', 
+                               user='humanda5', 
+                               password='humanda5')
+        
+        cursor = conn.cursor()
+
+        sql = """drop table if exists titanic"""
+        cursor.execute(sql)
+
+        sql = """create table if not exists titanic
+                (
+                    PassengerId int not null primary key
+                    ,Survived boolean not null
+                    ,Pclass int null
+                    ,Name varchar(100) null
+                    ,Sex varchar(10) null
+                    ,Age float null
+                    ,SibSp int null
+                    ,Parch int null
+                    ,Ticket varchar(50) null
+                    ,Fare float null
+                    ,Cabin varchar(100) null
+                    ,Embarked char(1) null
+                );"""
+        cursor.execute(sql)
+        
+    except Exception as e:
+        print('테이블 생성 실패', e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+10 데이터 저장 함수 생성
+
+    data_util.py 파일에 다음 함수 추가
+
+def insert_titanic_data(data):
+    try:
+        conn = pymysql.connect(host="localhost", 
+                               database='demoweb', 
+                               user='humanda5', 
+                               password='humanda5')
+        
+        cursor = conn.cursor()
+
+        sql = "insert into titanic values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.executemany(sql, data)
+        conn.commit()
+    except Exception as e:
+        print('데이터 저장 실패', e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+11. 데이터 초기화 링크 생성
+
+    base.html 파일의 88 line 부근에 아래 코드 추가
+
+<li>
+    <a href="{{ url_for('data.init_titanic') }}">Initialize Titanic</a>
+</li>
+
+12. 데이터 초기화 요청 처리 함수 구현
+
+     data_view.py 파일에 아래 코드 추가
+
+data_bp.route('/init-titanic', methods=['GET'])
+def init_titanic():
+    # 파일에서 데이터 읽기
+    bp_path = data_bp.root_path # 현재 blueprint의 경로 ( 여기서는 views )
+    root_path = Path(bp_path).parent #  부모 경로 (여기서는 demoweb )
+    file_path = os.path.join(root_path, 'data_files', 'titanic-train.csv')
+    df_titanic = pd.read_csv(file_path)
+
+    df_titanic['Age'] = df_titanic['Age'].fillna(df_titanic['Age'].mean())
+    df_titanic['Cabin'] = df_titanic['Cabin'].fillna('')
+    df_titanic['Embarked'] = df_titanic['Embarked'].fillna('')
+
+    # 데이터베이스의 titanic 테이블 초기화
+    data_util.create_titanic_table()
+    data = df_titanic.values.tolist() # pymysql ... executemany가 list, tuple 만 처리
+    data_util.insert_titanic_data(data)
+
+    # 응답컨텐츠 생산 --> home으로 이동
+    return redirect(url_for('main.index'))
+
+13. 실행 확인
+
+14. 데이터 조회 함수 추가
+
+    data_util.py 파일에 다음 함수 추가
+
+def select_titanic():
+    rows = None
+    try:
+        conn = pymysql.connect(host="localhost", 
+                               database='demoweb', 
+                               user='humanda5', 
+                               password='humanda5')
+        
+        cursor = conn.cursor()
+
+        sql = "select * from titanic"
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+    except Exception as e:
+        print('데이터 저장 실패', e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return rows
+
+
+15. 데이터 표시 처리 함수 수정
+
+    data_view.py 파일의 titanic 함수 내용 수정
+
+@data_bp.route('/titanic', methods=['GET'])
+def titanic():
+    # 파일에서 데이터 읽기
+    # bp_path = data_bp.root_path # 현재 blueprint의 경로 ( 여기서는 views )
+    # root_path = Path(bp_path).parent #  부모 경로 (여기서는 demoweb )
+    # file_path = os.path.join(root_path, 'data_files', 'titanic-train.csv')
+    # df_titanic = pd.read_csv(file_path)
+
+    # 데이터베이스에서 데이터 읽기
+    rows = data_util.select_titanic()
+    df_titanic = pd.DataFrame(rows, columns=['PassengerId','Survived','Pclass','Name','Sex','Age','SibSp','Parch','Ticket','Fare','Cabin','Embarked'])
+
+    # 템플릿으로 이동 ( 위에서 읽은 데이터 전달 )
+    return render_template('data/titanic.html', df=df_titanic)
+
+16. 실행 확인
+
+
+
+
+create table  if not exists titanic
+(
+	PassengerId int not null primary key
+	,Survived boolean not null
+	,Pclass int null
+	,Name varchar(100) null
+	,Sex varchar(10) null
+	,Age int null
+	,SibSp int null
+	,Parch int null
+	,Ticket varchar(50) null
+	,Fare float null
+	,Cabin varchar(10) null
+	,Embarked char(1) null
+);

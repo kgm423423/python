@@ -3,53 +3,8 @@
    demoweb 
 
 1. 웹 애플리케이션의 시작 지점 구현
-   __ 생성
-   __ 기본 내용 구현
-
-from flask import Flask
-from flask import render_template
-
-def create_app(): # Flask가 웹 애플리케이션을 시작할 때 자동으로 호출하는 함수
-
-    app = Flask(__name__) # web application 만들기
-
-    @app.route("/")
-    def index():
-        return render_template('index.html')
-
-    return app
-
-2. templates 폴더 만들기
-
-3.  index.html 파일 만들기 - 템플릿에서 복사
-
-    index3.html 파일 사용 -> 복사 후 이름 변경 (index.html)
-
-4. 실행
-
-   flask --app demoweb --debug run
-
-   화면 표시 확인 + 디자인 적용되지 않은 것 확인
-
-
-5. static 폴더 만들기
-
-6. 템플릿 원본 디렉터리의 css, fonts, images, js, media, vendor  폴더 복사해서 demoweb/static 폴더에 복사
-
-7. 수정 사항 확인
-
-   브라우저 화면 refresh
-
-
-
-   
-0. 웹 애플리케이션 디렉터리 만들기
-
-   demoweb 
-
-1. 웹 애플리케이션의 시작 지점 구현
-   __ 생성
-   __ 기본 내용 구현
+   __init__.py 생성
+   __init__.py 기본 내용 구현
 
 from flask import Flask
 from flask import render_template

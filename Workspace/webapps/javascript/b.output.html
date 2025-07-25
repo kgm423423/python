@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자바스크립트 메시지 출력</title>
+</head>
+<body>
+    <p id="response"></p>
+
+    <script>
+        document.write("<h3>이 메시지는 화면에 표시됩니다</h3>");
+
+        alert("이 메시지를 확인하세요!");
+        const answer = confirm("이 메시지를 확인하고 답을 주세요");
+        alert(answer);
+
+        console.log("이 메시지는 콘솔에 출력됩니다");
+
+        document.getElementById("response").innerText = answer;
+    </script>
+</body>
+</html>

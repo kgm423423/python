@@ -1,4 +1,4 @@
-@echo off
+echo off
 
 set var=%date%-%time%
 set var=%var: =%

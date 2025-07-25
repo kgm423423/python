@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>가위바위보 데이터 입력기</title>
+</head>
+<body>
+    <a href="{{ url_for('main.index') }}"> main page </a>
+    
+    <h1>가위바위보 게임</h1>
+
+    <p>플레이어 보유금: <strong>{{ player_money }}</strong> | 상대 보유금: <strong>{{ opponent_money }}</strong></p>
+    {% if result_text %}
+        <p><strong>{{ result_text }}</strong></p>
+    {% endif %}
+
+    <!-- 게임 플레이 폼 -->
+    <form method="POST">
+        <label>배팅액: <input type="number" name="bet_amount" value="1000" required></label><br><br>
+        <button type="submit" name="player_move" value="0">가위</button>
+        <button type="submit" name="player_move" value="1">바위</button>
+        <button type="submit" name="player_move" value="2">보</button>
+    </form>
+
+    <hr>
+
+    <!-- 보유금 수동 조정 폼 -->
+    <h3>보유금 수동 설정</h3>
+    <form method="POST">
+        <label>플레이어 보유금: <input type="number" name="set_player_money" value="{{ player_money }}"></label><br><br>
+        <label>상대 보유금: <input type="number" name="set_opponent_money" value="{{ opponent_money }}"></label><br><br>
+        <button type="submit" name="set_money" value="1">보유금 설정</button>
+    </form>
+
+
+
+    <h3>현재 세션의 최근 로그</h3>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>배팅액</th>
+            <th>플레이어</th>
+            <th>상대</th>
+            <th>결과</th>
+        </tr>
+        {% for row in logs|reverse %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ {0:"DRAW",1:"WIN",-1:"LOSE"}[row[3]] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
