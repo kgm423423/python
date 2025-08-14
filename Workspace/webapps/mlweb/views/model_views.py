@@ -5,6 +5,10 @@ from ..data_util import *
 
 models_bp = Blueprint("models", __name__, url_prefix="/models")
 
+iris_model = load_model('iris_model')
+cat_dog_model = load_model("cat_dog_cnn_model")
+num_model = load_model("number_model")
+
 @models_bp.route("/iris", methods=["GET", "POST"])
 def iris():
     predicted_species = None
@@ -15,10 +19,9 @@ def iris():
         sepal_width = request.form.get('sepal_width', '0')
         sepal_length = request.form.get('sepal_length', '0')
 
-        iris_model = load_model('iris_model')
         try:
             input_data = [[float(sepal_length),float(sepal_width),float(petal_length),float(petal_width)]]
-            predicted_species = iris_model.predict(input_data)
+            predicted_species = iris_model.predict(input_data, verbose=0)
         except:
             print(iris_model)
         print("예측된 품종 : ", predicted_species) 
@@ -33,13 +36,13 @@ def cat_dog():
     if request.method == "POST":
         image = request.files["image"]
         if image:
-            cat_dog_model = load_model("cat_dog_cnn_model")
-            gray_img, encoded_img = encode_image(image)
-            pred = cat_dog_model.predict(gray_img)[0]
-            pred_result = "cat" if pred[0] > pred[1] else "dog"
+            resize_img, encoded_img = encode_image(image)
+            pred = cat_dog_model.predict(resize_img, verbose=0)[0][0]
+            pred_result = "dog" if pred > 0.5 else "cat"
 
-            # 디버그 
-            print(pred)
+            # 디버그
+            p = pred*100
+            print(f"고양이 강아지 예측 : cat({(100-p):.0f}%) | dog({p:.0f}%)")
 
     return render_template('cat_dog.html', result = pred_result, image_data = encoded_img)
 
@@ -49,16 +52,19 @@ def number():
         # POST: Canvas 이미지 받아서 예측 수행
         data = request.json
         img_base64 = data['image']
+        img_vector = preprocess_base64_image(img_base64) 
 
-        img_vector = preprocess_base64_image(img_base64)
-        num_model = load_model("number_model")
+        proba = num_model.predict(img_vector, verbose=0)[0].tolist()  
+        pred_class = max(range(len(proba)), key=lambda i: proba[i]) 
 
-        pred = num_model.predict(img_vector)[0]
-        proba = num_model.predict_proba(img_vector).tolist()[0]
+        # 디버그
+        print("숫자 예측 확률:", end='')
+        for idx, pred in enumerate(proba):
+            print(f"{idx}:{pred*100:.0f}%", end=' ')
+        print()
 
-        return jsonify({'prediction': int(pred), 'probabilities': proba})
+        return jsonify({'prediction': pred_class})
     
-    # GET: 페이지 렌더링
     return render_template('number.html')
 
 

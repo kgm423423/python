@@ -1,6 +1,7 @@
-import numpy as np
-import pandas as pd
 import os
+import tensorflow as tf
+from keras.models import load_model as load_keras_model
+from sklearn.preprocessing import OneHotEncoder
 import pickle
 import joblib
 import base64
@@ -9,13 +10,13 @@ import re
 import cv2
 import csv
 from PIL import Image
-from keras.models import load_model as load_keras_model
-from sklearn.preprocessing import OneHotEncoder
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout, Input
-from tensorflow.keras.optimizers import Adam
+import numpy as np
+import pandas as pd
+
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), 'static')
+
+
 
 def load_model(model_name):
     exts = ['pickle', 'joblib', 'h5', 'keras']
@@ -26,29 +27,42 @@ def load_model(model_name):
                 if ext == 'pickle':
                     with open(model_path, 'rb') as f: return pickle.load(f)
                 elif ext == 'joblib': return joblib.load(model_path)
-                else: return load_keras_model(model_path)
+                else: return load_keras_model(model_path, compile=False)
             except Exception as e:
                 raise RuntimeError(f"Failed to load {model_path}: {e}")
     raise FileNotFoundError(f"Model '{model_name}' not found in {BASE_DIR}")
 
 def encode_image(image):
+    # 1. RGB로 변환 및 128x128 리사이즈
     image.stream.seek(0)
-    gray = Image.open(image.stream).convert("L").resize((64, 64))
-    gray_arr = np.expand_dims(np.expand_dims(np.array(gray)/255.0, -1), 0)
+    rgb = Image.open(image.stream).convert("RGB").resize((128, 128))
+    rgb_arr = np.expand_dims(np.array(rgb) / 255.0, 0)  # (1, 128, 128, 3)
 
+    # 2. Base64 인코딩 (원본 표시용)
     image.stream.seek(0)
-    rgb = Image.open(image.stream).convert("RGB")
     buf = io.BytesIO()
     rgb.save(buf, format="JPEG")
     encoded = base64.b64encode(buf.getvalue()).decode("utf-8")
-    return gray_arr, encoded
+
+    return rgb_arr, encoded
 
 def preprocess_base64_image(img_base64):
+    # Base64 → OpenCV 이미지 (Grayscale)
     img_str = re.sub('^data:image/.+;base64,', '', img_base64)
     img = cv2.imdecode(np.frombuffer(base64.b64decode(img_str), np.uint8), cv2.IMREAD_GRAYSCALE)
+    
+    # 색 반전 (흰색 배경 + 검은 글씨로 맞추기)
     img = cv2.bitwise_not(img)
-    img = cv2.resize(img, (8, 8), interpolation=cv2.INTER_AREA)
-    return ((img / 255.0) * 16).flatten().reshape(1, -1)
+
+    # 28×28 크기로 리사이즈
+    img = cv2.resize(img, (28, 28), interpolation=cv2.INTER_AREA)
+    
+    # 0~1 스케일링 후 (batch, 28, 28, 1) 형태로 변환
+    img = img / 255.0
+    img = np.expand_dims(img, axis=-1)  # (28,28,1)
+    img = np.expand_dims(img, axis=0)   # (1,28,28,1)
+
+    return img
 
 def save_csv(file_name, data, header):
     path = os.path.join(BASE_DIR, 'data', f"{file_name}.csv")
